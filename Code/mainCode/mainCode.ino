@@ -66,6 +66,13 @@ void loop()
   {
     i = i % 3;
     L[i] = getDistance();
+    if (L[0] < warningDisdance && L[1] < warningDisdance ||
+        L[1] < warningDisdance && L[2] < warningDisdance ||
+        L[2] < warningDisdance && L[0] < warningDisdance)
+    {
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+    }
     switch (i)
     {
     case 0:
