@@ -1,5 +1,5 @@
 # Bicycle Active Safety System
-??A set of devices for danger detection and auto-reaction. 
+:bike:A set of devices for danger detection and auto-reaction. 
 
 Group project for "Engineering Practice"(ME210) in SJTU.
 
