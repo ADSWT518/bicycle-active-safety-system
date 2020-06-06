@@ -1,4 +1,4 @@
-#include <Servo.h>
+//#include <Servo.h>
 #include <SoftwareSerial.h>
 
 struct DT
@@ -7,11 +7,12 @@ struct DT
   float tim;
 };
 
-Servo myservo;
+//Servo myservo;
 SoftwareSerial mySerial(10, 11); // RX, TX
 int LED1 = 6;                    //车尾的灯
 int LED2 = 7;                    //车把上的灯
 int Buzzer = 8;                  //蜂鸣器
+int servoPin = 9;                //舵机
 int i;
 
 DT L[3];
@@ -28,7 +29,8 @@ void setup()
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
   pinMode(Buzzer, OUTPUT);
-  myservo.attach(9); //舵机连9号口
+  pinMode(servoPin, OUTPUT);
+  //yservo.attach(9); //舵机连9号口
   Serial.begin(9600);
   mySerial.begin(9600);
 }
@@ -55,6 +57,15 @@ DT getDistance()
   }
 }
 
+void servopulse(int angle) //定义一个脉冲函数来控制舵机的转动
+{
+  int pulseWidth = (angle * 11) + 500;    //将角度转化为500-2480的脉宽值，每多转1度，对应高电平多11us
+  digitalWrite(servopin, HIGH);      //将舵机接口电平至高
+  delayMicroseconds(pulseWidth);    //延时脉宽值的微秒数
+  digitalWrite(servopin, LOW);       //将舵机接口电平至低
+  //delayMicroseconds(20000 - pulseWidth);
+}
+
 void loop()
 {
   delay(2000);
@@ -66,13 +77,6 @@ void loop()
   {
     i = i % 3;
     L[i] = getDistance();
-    if (L[0] < warningDisdance && L[1] < warningDisdance ||
-        L[1] < warningDisdance && L[2] < warningDisdance ||
-        L[2] < warningDisdance && L[0] < warningDisdance)
-    {
-      digitalWrite(LED1, HIGH);
-      digitalWrite(LED2, HIGH);
-    }
     switch (i)
     {
     case 0:
@@ -92,10 +96,12 @@ void loop()
   digitalWrite(LED2, HIGH);
   digitalWrite(Buzzer, HIGH); //预警
   delay(20);
-  myservo.write(120); //刹车
+  //myservo.write(120); //刹车
+  servoPulse(120); //刹车
   delay(2000);
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
   digitalWrite(Buzzer, LOW);
-  myservo.write(30);
+  //myservo.write(30);
+  servoPulse(30);
 }
