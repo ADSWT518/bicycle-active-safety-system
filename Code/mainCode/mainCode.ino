@@ -1,24 +1,14 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
 
-struct DT
-{
-  float dis;
-  float tim;
-};
-
-Servo myservo;
 SoftwareSerial mySerial(10, 11); // RX, TX
 int LED1 = 6;                    //车尾的灯
 int LED2 = 7;                    //车把上的灯
 int Buzzer = 8;                  //蜂鸣器
-int i;
+Servo myservo;                   //舵机
 
-DT L[3];
-float v;              //三次测量的距离和计算出的速度
-int brakingTime = 20; //这里估算刹车时间为2s
-float brakingAcceleration = 6;
-float currentDistance;
+float L1, L2, L3, v;        //三次测量的距离和计算出的速度
+int brakingTime = 2;        //这里估算刹车时间为2s
 float warningVelocity;      //速度大于这个就自动刹车
 int warningDisdance = 1500; //距离小于这个就提醒（1.5m
 int interval;               //灯和蜂鸣器的响应的间隔
@@ -33,69 +23,61 @@ void setup()
   mySerial.begin(9600);
 }
 
-DT getDistance()
+int getDistance()
 {
-  while (1) //测距不成功则再次测距，直至成功
+  mySerial.write(85); //向RX端发送0X55
+  byte serialData[5];
+  int dis;
+  while (mySerial.available())
   {
-    while (mySerial.available()) //清空缓冲区
-    {
-      mySerial.read();
-    }
-    mySerial.write(85); //发送测距指令
-    byte input[4];
-    DT DisTime;
-    mySerial.setTimeout(95);
-    if (mySerial.readBytes(input, 4) > 0 && input[0] == 255 && (input[1] + input[2] - 1) % 256 == input[3]) //校验数据
-    {
-      DisTime.tim = millis();
-      DisTime.dis = ((input[1] * 256) + input[2]);
-      Serial.println(DisTime.dis);
-      return DisTime;
-    }
+    byte b = mySerial.read();
   }
+  mySerial.setTimeout(95);
+  if (mySerial.readBytes(serialData, 4) > 0)
+  {
+    dis = ((serialData[1] * 256) + serialData[2]);
+  }
+  return dis; //单位mm
 }
 
 void loop()
 {
-  delay(2000);
-  L[0] = getDistance();
-  L[1] = getDistance();
-  warningVelocity = 100000;
-  v = ((L[0]).dis - (L[1]).dis) / ((L[1]).tim - (L[0]).tim);
-  for (i = 2; v < warningVelocity; ++i) //保存2个之前距离，测一个新距离，保存在L[i]中
+  L1 = getDistance(); //从传感器获取距离，函数在上面
+  delay(15);
+  L2 = getDistance();
+  delay(15);
+  L3 = getDistance();
+  v = ((L1 - L2) / 15 + (L2 - L3) / 15) / 2;
+  warningVelocity = 2 * L3 / brakingTime;
+
+  while (L3 < warningDisdance && v > 0) //距离小于安全距离且不断接近中
   {
-    i = i % 3;
-    L[i] = getDistance();
-    if (L[0] < warningDisdance && L[1] < warningDisdance ||
-        L[1] < warningDisdance && L[2] < warningDisdance ||
-        L[2] < warningDisdance && L[0] < warningDisdance)
-    {
+    interval = (warningDisdance - L3) / warningDisdance * 100; //距离越小，闪烁间隔越小
+    digitalWrite(LED2, HIGH);
+    digitalWrite(Buzzer, HIGH);
+    delay(interval / v);
+    digitalWrite(LED2, LOW);
+    digitalWrite(Buzzer, LOW);
+    delay(interval / v);
+
+    L1 = getDistance(); //从传感器获取距离，函数在上面
+    delay(15);
+    L2 = getDistance();
+    delay(15);
+    L3 = getDistance();
+    v = ((L1 - L2) / 15 + (L2 - L3) / 15) / 2;
+    warningVelocity = 2 * L3 / brakingTime;
+
+    if (v > warningVelocity) //相对速度大于危险速度
+    {                        //舵机刹车，车尾预警灯亮起
       digitalWrite(LED1, HIGH);
-      digitalWrite(LED2, HIGH);
+      for (int i = 0; i < 180; i += 5) //最大角度需实测
+      {
+        myservo.write(i); //这里想实现慢慢刹车（模拟手动刹车的情况）但是不知道效果如何
+        delay(15);
+      }
     }
-    switch (i)
-    {
-    case 0:
-      v = ((L[1]).dis - (L[0]).dis) / ((L[0]).tim - (L[1]).tim);
-      break;
-    case 1:
-      v = ((L[2]).dis - (L[1]).dis) / ((L[1]).tim - (L[2]).tim);
-      break;
-    case 2:
-      v = ((L[0]).dis - (L[2]).dis) / ((L[2]).tim - (L[0]).tim);
-      break;
-    }
-    Serial.println(v);
-    warningVelocity = (L[i]).dis / brakingTime;
-  } //跳出循环，进入刹车模式
-  digitalWrite(LED1, HIGH);
-  digitalWrite(LED2, HIGH);
-  digitalWrite(Buzzer, HIGH); //预警
-  delay(20);
-  myservo.write(120); //刹车
-  delay(2000);
-  digitalWrite(LED1, LOW);
-  digitalWrite(LED2, LOW);
-  digitalWrite(Buzzer, LOW);
-  myservo.write(30);
+    digitalWrite(LED1, LOW); //刹车后恢复原位
+    myservo.write(0);
+  }
 }
