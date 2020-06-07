@@ -1,6 +1,5 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
-#include <math.h>
 
 struct DT
 {
@@ -13,15 +12,13 @@ SoftwareSerial mySerial(10, 11); // RX, TX
 int LED1 = 6;                    //车尾的灯
 int LED2 = 7;                    //车把上的灯
 int Buzzer = 8;                  //蜂鸣器
-int i;
 
 DT L_last, L_current;
-float v;                       //三次测量的距离和计算出的速度
-int brakingTime = 2000;        //这里估算刹车时间为2s
-float brakingAcceleration = 6; //似乎没用用到这个变量
-float warningVelocity;         //速度大于这个就自动刹车
-int warningDisdance = 1500;    //距离小于这个就提醒（1.5m
-int interval;                  //灯和蜂鸣器的响应的间隔
+float v;                    //三次测量的距离和计算出的速度
+int brakingTime = 2000;     //这里估算刹车时间为2s
+float warningVelocity;      //速度大于这个就自动刹车
+int warningDisdance = 1500; //距离小于这个就提醒（1.5m
+int interval;               //灯和蜂鸣器的响应的间隔
 
 void setup()
 {
@@ -60,17 +57,9 @@ void loop()
 {
   delay(2000);
   L_last = getDistance();
-  L_current = getDistance();
   warningVelocity = 100000;
-  v = abs(L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
 
-  if (L_current.dis < warningDisdance && L_last.dis < warningDisdance) //判断是否要亮灯
-  {
-    digitalWrite(LED1, HIGH);
-    digitalWrite(LED2, HIGH);
-  }
-
-  while (v < warningVelocity) //保存一开始测到的L_last和L_current，测一个新距离，更新L_current，最后用L_current更新L_last
+  do
   {
     L_current = getDistance();
     if (L_current.dis < warningDisdance && L_last.dis < warningDisdance) //判断是否要亮灯
@@ -78,12 +67,12 @@ void loop()
       digitalWrite(LED1, HIGH);
       digitalWrite(LED2, HIGH);
     }
-    v = abs(L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
-    L_last.dis = L_current.dis;
+    v = (L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
+    L_last.dis = L_current.dis; //保存一开始测到的L_last和L_current，测一个新距离，更新L_current，最后用L_current更新L_last
     L_last.tim = L_current.tim;
     //Serial.println(v);  //调试时使用
     warningVelocity = L_current.dis / brakingTime;
-  } //跳出循环，进入刹车模式
+  } while (v < warningVelocity); //跳出循环，进入刹车模式
 
   digitalWrite(LED1, HIGH);
   digitalWrite(LED2, HIGH);
