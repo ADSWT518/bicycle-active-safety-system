@@ -16,12 +16,12 @@ int Buzzer = 8;                  //蜂鸣器
 int i;
 
 DT L_last, L_current;
-float v;                //三次测量的距离和计算出的速度
-int brakingTime = 2000; //这里估算刹车时间为2s
-float brakingAcceleration = 6;
-float warningVelocity;      //速度大于这个就自动刹车
-int warningDisdance = 1500; //距离小于这个就提醒（1.5m
-int interval;               //灯和蜂鸣器的响应的间隔
+float v;                       //三次测量的距离和计算出的速度
+int brakingTime = 2000;        //这里估算刹车时间为2s
+float brakingAcceleration = 6; //似乎没用用到这个变量
+float warningVelocity;         //速度大于这个就自动刹车
+int warningDisdance = 1500;    //距离小于这个就提醒（1.5m
+int interval;                  //灯和蜂鸣器的响应的间隔
 
 void setup()
 {
@@ -81,7 +81,7 @@ void loop()
     v = abs(L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
     L_last.dis = L_current.dis;
     L_last.tim = L_current.tim;
-    //Serial.println(v);
+    //Serial.println(v);  //调试时使用
     warningVelocity = L_current.dis / brakingTime;
   } //跳出循环，进入刹车模式
 
@@ -90,7 +90,7 @@ void loop()
   digitalWrite(Buzzer, HIGH); //预警
   delay(20);
   myservo.write(120); //刹车
-  
+
   delay(2000);
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
