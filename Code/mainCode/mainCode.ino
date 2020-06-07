@@ -1,5 +1,6 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
+#include <math.h>
 
 struct DT
 {
@@ -14,11 +15,10 @@ int LED2 = 7;                    //车把上的灯
 int Buzzer = 8;                  //蜂鸣器
 int i;
 
-DT L[3];
-float v;              //三次测量的距离和计算出的速度
-int brakingTime = 20; //这里估算刹车时间为2s
+DT L_last, L_current;
+float v;                //三次测量的距离和计算出的速度
+int brakingTime = 2000; //这里估算刹车时间为2s
 float brakingAcceleration = 6;
-float currentDistance;
 float warningVelocity;      //速度大于这个就自动刹车
 int warningDisdance = 1500; //距离小于这个就提醒（1.5m
 int interval;               //灯和蜂鸣器的响应的间隔
@@ -45,6 +45,7 @@ DT getDistance()
     byte input[4];
     DT DisTime;
     mySerial.setTimeout(95);
+    delay(60);                                                                                              //保证这里得到的是一次探测的数据
     if (mySerial.readBytes(input, 4) > 0 && input[0] == 255 && (input[1] + input[2] - 1) % 256 == input[3]) //校验数据（有可能可以不需要校验？
     {
       DisTime.tim = millis();
@@ -58,35 +59,23 @@ DT getDistance()
 void loop()
 {
   delay(2000);
-  L[0] = getDistance();
-  L[1] = getDistance();
+  L_last = getDistance();
+  L_current = getDistance();
   warningVelocity = 100000;
-  v = ((L[0]).dis - (L[1]).dis) / ((L[1]).tim - (L[0]).tim);
-  for (i = 2; v < warningVelocity; ++i) //保存2个之前距离，测一个新距离，保存在L[i]中
+  v = abs(L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
+  while (v < warningVelocity) //保存2个之前距离，测一个新距离，保存在L[i]中
   {
-    i = i % 3;
-    L[i] = getDistance();
-    if (L[0] < warningDisdance && L[1] < warningDisdance ||
-        L[1] < warningDisdance && L[2] < warningDisdance ||
-        L[2] < warningDisdance && L[0] < warningDisdance)
+    L_current = getDistance();
+    if (L_current.dis < warningDisdance && L_last.dis < warningDisdance)
     {
       digitalWrite(LED1, HIGH);
       digitalWrite(LED2, HIGH);
     }
-    switch (i)
-    {
-    case 0:
-      v = ((L[1]).dis - (L[0]).dis) / ((L[0]).tim - (L[1]).tim);
-      break;
-    case 1:
-      v = ((L[2]).dis - (L[1]).dis) / ((L[1]).tim - (L[2]).tim);
-      break;
-    case 2:
-      v = ((L[0]).dis - (L[2]).dis) / ((L[2]).tim - (L[0]).tim);
-      break;
-    }
-    Serial.println(v);
-    warningVelocity = (L[i]).dis / brakingTime;
+    v = bs(L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
+    L_last.dis = L_current.dis;
+    L_last.tim = L_current.tim;
+    //Serial.println(v);
+    warningVelocity = L_current.dis / brakingTime;
   } //跳出循环，进入刹车模式
   digitalWrite(LED1, HIGH);
   digitalWrite(LED2, HIGH);
