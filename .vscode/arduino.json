@@ -2,5 +2,5 @@
     "board": "arduino:avr:uno",
     "programmer": "AVRISP mkII",
     "port": "COM9",
-    "sketch": "V1.0.ino"
+    "sketch": "Code\\mainCode\\mainCode.ino"
 }

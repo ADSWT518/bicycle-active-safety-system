@@ -45,7 +45,7 @@ DT getDistance()
     byte input[4];
     DT DisTime;
     mySerial.setTimeout(95);
-    delay(60);                                                                                              //保证这里得到的是一次探测的数据
+    delay(60); //保证这里得到的是一次探测的数据
     if (mySerial.readBytes(input, 4) > 0 && input[0] == 255 && (input[1] + input[2] - 1) % 256 == input[3]) //校验数据（有可能可以不需要校验？
     {
       DisTime.tim = millis();
@@ -63,25 +63,34 @@ void loop()
   L_current = getDistance();
   warningVelocity = 100000;
   v = abs(L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
-  while (v < warningVelocity) //保存2个之前距离，测一个新距离，保存在L[i]中
+
+  if (L_current.dis < warningDisdance && L_last.dis < warningDisdance) //判断是否要亮灯
+  {
+    digitalWrite(LED1, HIGH);
+    digitalWrite(LED2, HIGH);
+  }
+
+  while (v < warningVelocity) //保存一开始测到的L_last和L_current，测一个新距离，更新L_current，最后用L_current更新L_last
   {
     L_current = getDistance();
-    if (L_current.dis < warningDisdance && L_last.dis < warningDisdance)
+    if (L_current.dis < warningDisdance && L_last.dis < warningDisdance) //判断是否要亮灯
     {
       digitalWrite(LED1, HIGH);
       digitalWrite(LED2, HIGH);
     }
-    v = bs(L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
+    v = abs(L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
     L_last.dis = L_current.dis;
     L_last.tim = L_current.tim;
     //Serial.println(v);
     warningVelocity = L_current.dis / brakingTime;
   } //跳出循环，进入刹车模式
+
   digitalWrite(LED1, HIGH);
   digitalWrite(LED2, HIGH);
   digitalWrite(Buzzer, HIGH); //预警
   delay(20);
   myservo.write(120); //刹车
+  
   delay(2000);
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
