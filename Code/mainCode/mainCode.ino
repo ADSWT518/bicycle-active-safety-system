@@ -45,11 +45,11 @@ DT getDistance()
     byte input[4];
     DT DisTime;
     mySerial.setTimeout(95);
-    if (mySerial.readBytes(input, 4) > 0 && input[0] == 255 && (input[1] + input[2] - 1) % 256 == input[3]) //校验数据
+    if (mySerial.readBytes(input, 4) > 0 && input[0] == 255 && (input[1] + input[2] - 1) % 256 == input[3]) //校验数据（有可能可以不需要校验？
     {
       DisTime.tim = millis();
-      DisTime.dis = ((input[1] * 256) + input[2]);
-      Serial.println(DisTime.dis);
+      DisTime.dis = (input[1] << 8) + input[2]; //用位运算代替乘法
+      //Serial.println(DisTime.dis);              //调试时使用
       return DisTime;
     }
   }
