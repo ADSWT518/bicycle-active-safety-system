@@ -43,7 +43,7 @@ DT getDistance()
     DT DisTime;
     mySerial.setTimeout(95);
     delay(60); //保证这里得到的是一次探测的数据
-    if (mySerial.readBytes(input, 4) > 0 && input[0] == 255 && (input[1] + input[2] - 1) % 256 == input[3]) //校验数据（有可能可以不需要校验？
+    if (mySerial.readBytes(input, 4) > 0 && input[0] == 255 && (input[1] + input[2] - 1) % 256 == input[3]) //校验数据
     {
       DisTime.tim = millis();
       DisTime.dis = (input[1] << 8) + input[2]; //用位运算代替乘法
@@ -59,7 +59,7 @@ void loop()
   L_last = getDistance();
   warningVelocity = 100000;
 
-  do
+  do//保存一开始测到的L_last和L_current，测一个新距离，更新L_current，最后用L_current更新L_last
   {
     L_current = getDistance();
     if (L_current.dis < warningDisdance && L_last.dis < warningDisdance) //判断是否要亮灯
@@ -68,7 +68,7 @@ void loop()
       digitalWrite(LED2, HIGH);
     }
     v = (L_last.dis - L_current.dis) / (L_current.tim - L_last.tim);
-    L_last.dis = L_current.dis; //保存一开始测到的L_last和L_current，测一个新距离，更新L_current，最后用L_current更新L_last
+    L_last.dis = L_current.dis;
     L_last.tim = L_current.tim;
     //Serial.println(v);  //调试时使用
     warningVelocity = L_current.dis / brakingTime;

@@ -7,3 +7,6 @@ Group project for "Engineering Practice"(ME210) in SJTU.
 Ultrasonic sensor: jsn-sr04t-2.0
 
 Steering engine: MG996R
+
+### team members:
+Yijie Hong, Kangzhe Hu, Weihang Shen, and Yazhou Tang([@ADSWT518](https://github.com/ADSWT518)).
