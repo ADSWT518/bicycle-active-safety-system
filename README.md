@@ -3,37 +3,39 @@
 
 Group project for "Engineering Practice"(ME210) in SJTU.
 
-### Overview
+## Overview
 
-#### The whole system on the bicycle
+### The whole system on the bicycle
 
-![image](images/overview.jpg)
+![overview](images/overview.jpg)
 
-#### Device model
+### Device model
 
 Ultrasonic sensor: jsn-sr04t-2.0
 
 Steering engine: MG996R
 
-#### Steering engine
-<center class="half">
-<img src="images/Steering engine1.jpg" alt="Steering engine1" style="zoom: 25%;" /><img src="images/Steering engine2.jpg" alt="Steering engine2" style="zoom: 25%;" />
-</center>
+### Steering engine
+
+<img src="images/Steering engine1.jpg" alt="Steering engine1" width="200" /><img src="images/Steering engine2.jpg" alt="Steering engine2" width="200" />
+
+
 work by pulling the brake cable
 
 ![image](images/test.gif)
 
-#### Other devices
-<center class="half">
-    <img src="images\buzzer&headlight.jpg" alt="buzzer&headlight" height="200"/><img src="images\Ultrasonic sensor.jpg" alt="Ultrasonic sensor" height="200"/><img src="images\power&arduino&taillight.jpg" alt="power&arduino&taillight" height="200"/>
-</center>
+### Other devices
+
+
+<img src="images/buzzer%26headlight.jpg" alt="buzzer&headlight" height="200"/><img src="images/Ultrasonic%20sensor.jpg" alt="Ultrasonic sensor" height="200"/><img src="images/power%26arduino%26taillight.jpg" alt="power&arduino&taillight" height="200"/>
+
 ### The project
 
 [Poster](files/Poster.pdf)
 
-[Final presentation](files/Final presentation.pdf)
+[Final presentation](files/Final%20presentation.pdf)
 
 
-### Team members:
+## Team members:
 
 Yijie Hong, Kangzhe Hu, Weihang Shen, and Yazhou Tang([@ADSWT518](https://github.com/ADSWT518)).
