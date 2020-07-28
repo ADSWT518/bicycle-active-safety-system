@@ -7,7 +7,7 @@ Group project for "Engineering Practice"(ME210) in SJTU.
 
 ### The whole system on the bicycle
 
-![overview](images/overview.jpg)
+<img src="images/overview.jpg" alt="overview" width="600" />
 
 ### Device model
 
@@ -17,7 +17,7 @@ Steering engine: MG996R
 
 ### Steering engine
 
-<img src="images/Steering engine1.jpg" alt="Steering engine1" width="200" /><img src="images/Steering engine2.jpg" alt="Steering engine2" width="200" />
+<img src="images/Steering engine1.jpg" alt="Steering engine1" width="200" /> <img src="images/Steering engine2.jpg" alt="Steering engine2" width="200" />
 
 
 work by pulling the brake cable
@@ -27,7 +27,7 @@ work by pulling the brake cable
 ### Other devices
 
 
-<img src="images/buzzer%26headlight.jpg" alt="buzzer&headlight" height="200"/><img src="images/Ultrasonic%20sensor.jpg" alt="Ultrasonic sensor" height="200"/><img src="images/power%26arduino%26taillight.jpg" alt="power&arduino&taillight" height="200"/>
+<img src="images/buzzer%26headlight.jpg" alt="buzzer&headlight" height="200"/> <img src="images/Ultrasonic%20sensor.jpg" alt="Ultrasonic sensor" height="200"/> <img src="images/power%26arduino%26taillight.jpg" alt="power&arduino&taillight" height="200"/>
 
 ### The project
 
