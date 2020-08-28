@@ -3,6 +3,8 @@
 
 Group project for "Engineering Practice"(ME210) in SJTU.
 
+**congratulations！ This project was awarded Grand Prize in the course project selection!**
+
 ## Overview
 
 ### The whole system on the bicycle
